@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Load JSON Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>Converter</h1>
+    <input type="file" id="fileUpload" accept=".json">
+    <br>
+    <br>
+    <hr></hr>
+    <br>
+    
+    <a id = "bru">download</a>
+    
+<script>
+    document.getElementById('fileUpload').addEventListener('change', function(event) {
+        const file = event.target.files[0]; // Get the file
+        if (!file) {
+            return; // No file selected, exit the function
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            try {
+                const json = JSON.parse(event.target.result); // Parse the file content as JSON
+                //document.getElementById("bruh").innerHTML = JSON.stringify(json);
+                let csv = '';
+                // append stuff to csv content
+                csv += 'SupplierName, Description, itemCode, partNumber, Catalog, QtyToBeOrdered, OrderBeforeDate,Estimates,RequiredQuantity,MinimumOnHand,AvailableQty,IncomingStock,LeadTimeUsage\n';
+                json.forEach(function (item, index) {
+                    csv += item.supplierName + ',';
+                    csv += item.description + ',';
+                    csv += item.itemCode + ',';
+                    csv += item.partNumber + ',';
+                    csv += item.productCatalogName + ',';
+                    csv += item.toBeOrderedQuantity + ',';
+                    csv += item.orderBeforeDate + ',';
+                    current = item.estimateRequirements;
+                    var v3 = '"`';
+                    current.forEach(function (items, indexs) {
+                        //const values = Object.values(items);
+                        const values = items;
+                        v3 += values.estimateNumber+',';
+                    });
+                    v3 = v3.slice(0, -1);
+                    v3 += '"';
+                    csv += v3+',';
+                    csv += item.requiredQuantity + ',';
+                    csv += item.minimumOnHandQuantity + ',';
+                    csv += item.availableOnHandQuantity + ',';
+                    csv += item.incomingStock + ',';
+                    csv += item.leadTimeUsage;
+                    csv += '\n';
+
+                
+                    
+                });
+                csv = csv.replace(/null/g, ''); // Replace all occurrences of "null" with an empty string
+                csv = csv.replace(/undefined/g, ''); // Replace all occurrences of "null" with an empty string
+                console.log(csv);
+                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8,' })
+                const objUrl = URL.createObjectURL(blob)
+                const link = document.getElementById("bru");
+                link.setAttribute('href', objUrl)
+                link.setAttribute('download', 'File.csv')
+                link.textContent = 'Click to Download'
+                document.querySelector('body').append(link)
+                
+            } catch (e) {
+                console.error("Error parsing JSON:", e);
+            }
+        };
+
+        reader.onerror = function() {
+            console.error("Error reading file");
+        };
+
+        reader.readAsText(file); // Read the file as text
+    });
+    //fetch('./data.json')
+    //.then((response) => response.json())
+    //.then((json) => {
+        
+    //});
+    
+</script>
+</body>
+</html>
